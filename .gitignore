@@ -1,0 +1,23 @@
+.tscache/
+/node_modules/
+*.log
+*.log.*
+*.swp
+*.swo
+/spec/custom-config/
+/dev-test/
+/event-logs/
+/config.json
+/log
+.nsprc
+.rpt2_cache/
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
