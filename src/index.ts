@@ -1,4 +1,4 @@
-import "./polyfills";
+import "./polyfills/polyfills";
 import { Vue } from "vue-property-decorator";
 import VueCustomElement from 'vue-custom-element';
 

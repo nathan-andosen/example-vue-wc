@@ -23,7 +23,7 @@
 
     <div class="phone-num">
       <span class="icomoon-phone"></span>
-      1800 000 111
+      1800 000 1112
     </div>
   </div>
 </template>

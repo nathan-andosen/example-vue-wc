@@ -5,7 +5,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import buble from 'rollup-plugin-buble';
 import replace from 'rollup-plugin-replace';
 import { uglify } from 'rollup-plugin-uglify';
-import cssnano from 'cssnano';
+// import cssnano from 'cssnano';
 import rollupPostcss from 'rollup-plugin-postcss';
 import postcssUrl from 'postcss-url';
 import postcssUrlEncode from 'postcss-url/src/lib/encode';
@@ -16,7 +16,7 @@ const path = require('path');
 const isProd = (process.env.NODE_ENV === 'prod') ? true : false;
 const scssIndexIgnore = path.join(__dirname, '..', 'src/assets/scss/index.scss');
 
-const componentName = 'thenja-login-form;
+const componentName = 'thenja-login-form';
 
 /**
  * Encode a file url into base64
@@ -25,6 +25,7 @@ const componentName = 'thenja-login-form;
  * @returns
  */
 const encodeUrl = function(filePath) {
+  console.log('filePath = ' + filePath);
   const file = fs.readFileSync(filePath);
   return postcssUrlEncode({
     path: filePath,
@@ -140,7 +141,7 @@ let rollupPlugins = [
 let devBuild = {
   input: 'src/index.ts',
   output: {
-    file: 'dist/' + componentName + '.dev.js',
+    file: 'dist/' + componentName + '.bundle.umd.js',
     format: 'umd',
     // sourcemap: true // does not seem to work well with .vue files
   },
@@ -156,7 +157,7 @@ let prodBuildAll = {
   },
   plugins: rollupPlugins.concat([
     buble(),
-    // uglify()
+    uglify()
   ])
 };
 
@@ -186,7 +187,7 @@ let prodBuildNoDeps = {
   ],
   plugins: rollupPlugins.concat([
     buble(),
-    // uglify()
+    uglify()
   ])
 };
 
@@ -223,6 +224,7 @@ let exportBuilds = [];
 if(isProd) {
   exportBuilds = [
     prodBuildAll,
+    devBuild,
     prodBuildNoDeps,
     prodBuildEsm
   ];

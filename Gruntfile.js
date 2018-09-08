@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         hostname: '0.0.0.0',
         livereload: true,
         open: {
-          target: 'http://localhost:9001'
+          target: 'http://localhost:9001/index.html'
         }
       }
     }

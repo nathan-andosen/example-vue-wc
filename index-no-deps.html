@@ -1,10 +1,17 @@
 <!doctype html>
 <html>
 <head>
+  <script src="node_modules/vue/dist/vue.runtime.js"></script>
+  <script src="node_modules/vue-custom-element/dist/vue-custom-element.js"></script>
+  <script src="node_modules/jquery/dist/jquery.slim.js"></script>
+  <script src="node_modules/popper.js/dist/umd/popper.js"></script>
+  <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css"></link>
   <script type="text/javascript">
     window.documentRegisterElementScriptPath = './node_modules/document-register-element/build/document-register-element.js';
   </script>
-  <script src="dist/thenja-login-form.bundle.umd.js"></script>
+  <link rel="stylesheet" href="dist/thenja-login-form.css"></link>
+  <script src="dist/thenja-login-form.umd.min.js"></script>
 </head>
 <body>
   <div id="app">This text is outside the web component</div>
@@ -19,7 +26,7 @@
     // formOne.title = "A different title";
 
     // example of how to listen to data being passed out of our custom element
-    formOne.addEventListener('thenja-login-form', function(ev) {
+    formOne.addEventListener('thenja-login-form-submit', function(ev) {
       console.log('thenja-login-form-submit fired...');
       console.log(ev.detail[0]);
     });
