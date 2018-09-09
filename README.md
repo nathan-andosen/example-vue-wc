@@ -1,6 +1,6 @@
 # Example Vue WC (Work in progress)
 
-Example of a web component built using VueJs
+Example of a web component built using VueJs. This example uses bootstrap, but this is not needed, its just an example showing how you could use an external dependency.
 
 # How to use
 
@@ -94,8 +94,7 @@ $tlf-color-primary: $color-primary;
 
 ```html
 <thenja-login-form 
-  [attr.title]="loginTitle" 
-  id="form-one" 
+  [attr.title]="loginTitle"
   (thenja-login-form-submit)="loginSubmitHandler($event)">
 </thenja-login-form>
 ```
