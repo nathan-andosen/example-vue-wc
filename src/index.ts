@@ -8,9 +8,6 @@ import "./assets/scss/index.scss";
 import "jquery/dist/jquery.slim.js";
 import "popper.js";
 import "bootstrap";
-// You could import bootstrap scss here, or in the main.scss file. Its better
-// in the main.scss file as you can override styling
-// import "bootstrap/scss/bootstrap.scss";
 
 import ThenjaLoginFormComponent from './thenja-login-form.component.vue';
 import { COMPONENT_NAME } from './thenja-login-form.component';

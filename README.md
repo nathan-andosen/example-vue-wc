@@ -1,4 +1,4 @@
-# example-vue-wc (Work in progress)
+# Example Vue WC (Work in progress)
 
 Example of a web component built using VueJs
 
@@ -120,3 +120,7 @@ export class AppComponent {
 ```
 
 7. Done.
+
+# Development
+
+``npm run build`` - Build the dist files

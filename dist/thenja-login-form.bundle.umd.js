@@ -33049,7 +33049,6 @@
           }
           _this.data = (_this.data) ? _this.data : {};
           return _this;
-          // this.title = (this.title) ? this.title : 'Welcome!';
       }
       /**
        * Get the data as a json object
