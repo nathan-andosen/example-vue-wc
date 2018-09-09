@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueCustomElement from 'vue-custom-element';
-import './assets/scss/index.scss';
 import 'jquery/dist/jquery.slim.js';
 import 'popper.js';
 import 'bootstrap';

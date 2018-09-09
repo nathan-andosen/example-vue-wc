@@ -8,133 +8,57 @@ import { uglify } from 'rollup-plugin-uglify';
 // import cssnano from 'cssnano';
 import rollupPostcss from 'rollup-plugin-postcss';
 import postcssUrl from 'postcss-url';
-import postcssUrlEncode from 'postcss-url/src/lib/encode';
-const fs = require('fs');
-const klawSync = require('klaw-sync');
-const mime = require('mime');
+import ignoreImport from 'rollup-plugin-ignore-import';
 const path = require('path');
+const encodeUrlHandler = require('./encode-url-handler');
 const isProd = (process.env.NODE_ENV === 'prod') ? true : false;
-const scssIndexIgnore = path.join(__dirname, '..', 'src/assets/scss/index.scss');
 
 const componentName = 'thenja-login-form';
 
-/**
- * Encode a file url into base64
- *
- * @param {*} filePath
- * @returns
- */
-const encodeUrl = function(filePath) {
-  console.log('filePath = ' + filePath);
-  const file = fs.readFileSync(filePath);
-  return postcssUrlEncode({
-    path: filePath,
-    contents: file,
-    mimeType: mime.lookup(filePath)
-  }, 'base64');
-};
-
-
-/**
- * Check if a file exists in a directory, if yes, return its base64 value
- *
- * @param {*} dirPath
- * @param {*} assetUrl
- * @returns
- */
-const checkFileExists = function(dirPath, assetUrl) {
-  var filePath = path.join(dirPath, assetUrl);
-  // some file paths might have a query parameter at the end, lets remove it
-  if(filePath.indexOf('?') > -1)
-    filePath = filePath.substring(0, filePath.indexOf('?'));
-  if(fs.existsSync(filePath)) {
-    return encodeUrl(filePath);
-  }
-  return false;
-};
-
-
-/**
- * Handle the postcssUrl plugin callback to encode file path urls to base64
- * 
- * @returns
- */
-const encodeUrlHandler = function(asset, dir, options, decl, warn, result) {
-  // console.log(asset);
-  if(fs.existsSync(asset.absolutePath)) {
-    return encodeUrl(asset.absolutePath);
-  } else if (options.basePath){
-    for(var i = 0; i < options.basePath.length; i++) {
-      const baseDir = path.join(process.cwd(), options.basePath[i]);
-      const res = checkFileExists(baseDir, asset.url);
-      if(res !== false) return res;
-      const dirs = klawSync(baseDir, {nofile: true});
-      // lets iterate each directory under the base path and see if we can find our file
-      for(var j = 0; j < dirs.length; j++) {
-        const res = checkFileExists(dirs[j].path, asset.url);
-        if(res !== false) return res;
-      }
-    }
-  }
-};
-
-
-// common rollup plugins
-let rollupPlugins = [
-  typescript({
-    typescript: require('typescript'),
-  }),
-  vue({
-    css: true,
-    compileTemplate: true,
-    style: {
-      preprocessOptions: {
-        scss: {
-          includePaths: ['node_modules']
-        }
-      },
-      // handle scss & css inside of .vue file
-      postcssPlugins: [
-        postcssUrl({
-          basePath: [
-            './src',
-            
-            // if you have any node_modules that have css that include font or
-            // image urls, add the node_module directory here
-            // './node_modules/aaa'
-          ],
-          url: function(asset, dir, options, decl, warn, result) {
-            return encodeUrlHandler(asset, dir, options, decl, warn, result);
-          }
-        }),
-        // cssnano()
-      ]
+const postCssPlugins = [
+  postcssUrl({
+    basePath: [
+      './src',
+      
+      // if you have any node_modules that have css that include font or
+      // image urls, add the node_module directory here
+      // './node_modules/aaa'
+    ],
+    url: function(asset, dir, options, decl, warn, result) {
+      return encodeUrlHandler.encodeUrl(asset, dir, options, decl, warn, result);
     }
   }),
-  // handle scss & css outside of .vue file
-  rollupPostcss({
-    plugins: [
-      postcssUrl({
-        basePath: [
-          './src',
-          
-          // if you have any node_modules that have css that include font or
-          // image urls, add the node_module directory here
-          // './node_modules/aaa'
-        ],
-        url: function(asset, dir, options, decl, warn, result) {
-          return encodeUrlHandler(asset, dir, options, decl, warn, result);
-        }
-      }),
-      // cssnano()
-    ]
-  }),
-  resolve(),
-  commonjs(),
-  replace({
-    'process.env.NODE_ENV': JSON.stringify( 'production' )
-  })
+  // cssnano()
 ];
+const outputGlobals = {
+  'vue': 'Vue',
+  'vue-custom-element': 'VueCustomElement',
+  'jquery/dist/jquery.slim.js': 'jQuery',
+  'popper.js': 'Popper',
+  'bootstrap': 'bootstrap'
+};
+const externals = [
+  'vue',
+  'vue-custom-element',
+  'jquery/dist/jquery.slim.js',
+  'popper.js',
+  'bootstrap',
+  'bootstrap/scss/bootstrap.scss'
+];
+
+const vuePluginOptions = {
+  css: true,
+  compileTemplate: true,
+  style: {
+    preprocessOptions: {
+      scss: {
+        includePaths: ['node_modules']
+      }
+    },
+    // handle scss & css inside of .vue file
+    postcssPlugins: postCssPlugins
+  }
+};
 
 
 // DEV BUILD
@@ -145,50 +69,74 @@ let devBuild = {
     format: 'umd',
     // sourcemap: true // does not seem to work well with .vue files
   },
-  plugins: rollupPlugins
+  plugins: [
+    typescript({
+      typescript: require('typescript'),
+    }),
+    vue(vuePluginOptions),
+    // handle scss & css outside of .vue file
+    rollupPostcss({
+      plugins: postCssPlugins
+    }),
+    resolve(),
+    commonjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    })
+  ]
 };
 
-// PROD UMD BUILD ALL
+// PROD UMD BUILD INCLUDE ALL DEPENDENCIES
 let prodBuildAll = {
   input: 'src/index.ts',
   output: {
     file: 'dist/' + componentName + '.bundle.umd.min.js',
     format: 'umd'
   },
-  plugins: rollupPlugins.concat([
+  plugins: [
+    typescript({
+      typescript: require('typescript'),
+    }),
+    vue(vuePluginOptions),
+    // handle scss & css outside of .vue file
+    rollupPostcss({
+      plugins: postCssPlugins
+    }),
+    resolve(),
+    commonjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    }),
     buble(),
     uglify()
-  ])
+  ]
 };
 
-
-// PROD UMD BUILD NO DEPS
+// PROD UMD BUILD NO DEPENDENCIES
 let prodBuildNoDeps = {
   input: 'src/index.ts',
   output: {
     file: 'dist/' + componentName + '.umd.min.js',
     format: 'umd',
-    globals: {
-      'vue': 'Vue',
-      'vue-custom-element': 'VueCustomElement',
-      'jquery/dist/jquery.slim.js': 'jQuery',
-      'popper.js': 'Popper',
-      'bootstrap': 'bootstrap'
-    }
+    globals: outputGlobals
   },
-  external: [
-    'vue',
-    'vue-custom-element',
-    'jquery/dist/jquery.slim.js',
-    'popper.js',
-    'bootstrap',
-    'bootstrap/scss/bootstrap.scss',
-    scssIndexIgnore
-  ],
-  plugins: rollupPlugins.concat([
+  external: externals,
+  plugins: [
+    ignoreImport({
+      extensions: ['.scss', '.css']
+    }),
+    typescript({
+      typescript: require('typescript'),
+    }),
+    vue(vuePluginOptions),
+    resolve(),
+    commonjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    }),
     buble(),
     uglify()
-  ])
+  ]
 };
 
 // PROD BUILD ESM
@@ -197,28 +145,24 @@ let prodBuildEsm = {
   output: {
     file: 'dist/' + componentName + '.esm.js',
     format: 'esm',
-    globals: {
-      'vue': 'Vue',
-      'vue-custom-element': 'VueCustomElement',
-      'jquery/dist/jquery.slim.js': 'jQuery',
-      'popper.js': 'Popper',
-      'bootstrap': 'bootstrap'
-    }
+    globals: outputGlobals
   },
-  external: [
-    'vue',
-    'vue-custom-element',
-    'jquery/dist/jquery.slim.js',
-    'popper.js',
-    'bootstrap',
-    'bootstrap/scss/bootstrap.scss',
-    scssIndexIgnore
-  ],
-  plugins: rollupPlugins
+  external: externals,
+  plugins: [
+    ignoreImport({
+      extensions: ['.scss', '.css']
+    }),
+    typescript({
+      typescript: require('typescript'),
+    }),
+    vue(vuePluginOptions),
+    resolve(),
+    commonjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify( 'production' )
+    })
+  ]
 };
-
-
-
 
 let exportBuilds = [];
 if(isProd) {
@@ -234,7 +178,6 @@ if(isProd) {
     devBuild 
   ];
 }
-
 
 // export the configs for rollup
 export default exportBuilds;
