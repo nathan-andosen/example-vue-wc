@@ -20,7 +20,7 @@ export default class ThenjaLoginFormComponent extends Vue {
   rememberMe: boolean = false;
 
   data!: iData;
-  @Prop() title!: string;
+  @Prop({default: 'Welcome!'}) title!: string;
 
   /**
    * Creates an instance of ExampleFormComponent.
@@ -33,7 +33,6 @@ export default class ThenjaLoginFormComponent extends Vue {
       this.data = JSON.parse(this.data);
     }
     this.data = (this.data) ? this.data : {};
-    this.title = (this.title) ? this.title : 'Welcome!';
   }
 
 

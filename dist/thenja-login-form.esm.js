@@ -291,8 +291,8 @@ var ThenjaLoginFormComponent = /** @class */ (function (_super) {
             _this.data = JSON.parse(_this.data);
         }
         _this.data = (_this.data) ? _this.data : {};
-        _this.title = (_this.title) ? _this.title : 'Welcome!';
         return _this;
+        // this.title = (this.title) ? this.title : 'Welcome!';
     }
     /**
      * Get the data as a json object
@@ -323,7 +323,7 @@ var ThenjaLoginFormComponent = /** @class */ (function (_super) {
         this.$emit('thenja-login-form-submit', this.getData());
     };
     __decorate([
-        Prop()
+        Prop({ default: 'Welcome!' })
     ], ThenjaLoginFormComponent.prototype, "title", void 0);
     ThenjaLoginFormComponent = __decorate([
         Component({
@@ -344,7 +344,7 @@ var __vue_render__ = function() {
   return _c("div", { staticClass: "thenja-login-form" }, [
     _c("div", { staticClass: "logo" }),
     _vm._v(" "),
-    _c("h2", [_vm._v(_vm._s(_vm.title))]),
+    _c("h2", { staticClass: "title" }, [_vm._v(_vm._s(_vm.title))]),
     _vm._v(" "),
     _c("div", [
       _c("div", { staticClass: "form-group" }, [

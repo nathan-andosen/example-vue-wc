@@ -1,7 +1,7 @@
 <template>
   <div class="thenja-login-form">
     <div class="logo"></div>
-    <h2>{{title}}</h2>
+    <h2 class="title">{{title}}</h2>
     <div>
       <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
