@@ -25,7 +25,8 @@ const postCssPlugins = [
       // './node_modules/aaa'
     ],
     url: function(asset, dir, options, decl, warn, result) {
-      return encodeUrlHandler.encodeUrl(asset, dir, options, decl, warn, result);
+      return encodeUrlHandler
+        .encodeUrl(asset, dir, options, decl, warn, result);
     }
   }),
   // cssnano()

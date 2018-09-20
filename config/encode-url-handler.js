@@ -47,8 +47,10 @@ function EncodeUrlHandler() {
    * @returns
    */
   this.encodeUrl = function(asset, dir, options, decl, warn, result) {
-    // console.log(asset);
-    if(fs.existsSync(asset.absolutePath)) {
+    // lets check if the url path is already a data url
+    if(asset.url &&asset.url.indexOf('data:') > -1) {
+      return asset.url;
+    } else if(fs.existsSync(asset.absolutePath)) {
       return encodeUrl(asset.absolutePath);
     } else if (options.basePath){
       for(var i = 0; i < options.basePath.length; i++) {
