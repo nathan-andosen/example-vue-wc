@@ -7908,6 +7908,64 @@
     }
   }
 
+  /**
+   * Register a VueJs component as a custom element
+   *
+   * @export
+   * @class RegisterComponentService
+   */
+  var RegisterComponentService = /** @class */ (function () {
+      function RegisterComponentService() {
+      }
+      /**
+       * Register the custom element component
+       *
+       * @param {*} component
+       * @param {string} name
+       * @param {(element: Function) => void} [cb]
+       * @memberof LoadComponentService
+       */
+      RegisterComponentService.prototype.register = function (component, name, cb) {
+          this.loadPolyfill(function () {
+              var element;
+              var comp = new component['components'][name]();
+              element = Vue.customElement(name, comp.$options);
+              if (cb)
+                  cb(element);
+          });
+      };
+      /**
+       * Load the polyfill for custom elements if needed
+       *
+       * @private
+       * @param {() => void} cb
+       * @memberof LoadComponent
+       */
+      RegisterComponentService.prototype.loadPolyfill = function (cb) {
+          if (!window.customElements || !window.customElements.define
+              || !window.customElements.get || !window.customElements.whenDefined) {
+              if (window.documentRegisterElementScriptPath) {
+                  // customElements not natively supported, have to download the polyfill
+                  var fileref = document.createElement('script');
+                  fileref.setAttribute("type", "text/javascript");
+                  fileref.setAttribute("src", window.documentRegisterElementScriptPath);
+                  fileref.onload = function () {
+                      cb();
+                  };
+                  document.getElementsByTagName("head")[0].appendChild(fileref);
+              }
+              else {
+                  throw new Error('customElements is not supported, please use the ' +
+                      'document-register-element polyfill');
+              }
+          }
+          else {
+              cb();
+          }
+      };
+      return RegisterComponentService;
+  }());
+
   function styleInject(css, ref) {
     if ( ref === void 0 ) ref = {};
     var insertAt = ref.insertAt;
@@ -33300,51 +33358,15 @@
       undefined
     );
 
-  var component = ThenjaLoginFormComponent$1;
   Vue.use(install);
-  /**
-   * Load the web component
-   *
-   */
-  var loadWebComponent = function () {
-      var element;
-      // for some reason rollupjs plugin rollup-plugin-vue does not output the 
-      // same as webpack, so the component is inside a property called components
-      if (component['components']) {
-          var c = new component['components'][COMPONENT_NAME]();
-          element = Vue.customElement(COMPONENT_NAME, c.$options);
-      }
-      else {
-          // handle webpack build
-          var c = new component();
-          element = Vue.customElement(COMPONENT_NAME, c.$options);
-      }
+  var component = ThenjaLoginFormComponent$1;
+  // register our component
+  var registerComponentSrv = new RegisterComponentService();
+  registerComponentSrv.register(component, COMPONENT_NAME, function (element) {
       // create your own custom methods on the custum element
       element.prototype.passData = function (data) {
           this.getVueInstance().passData(data);
       };
-  };
-  // check if customElements is supported, if not, we need to download the 
-  // polyfill
-  if (!window.customElements || !window.customElements.define
-      || !window.customElements.get || !window.customElements.whenDefined) {
-      if (window.documentRegisterElementScriptPath) {
-          // customElements not natively supported, we have to download the polyfill
-          var fileref = document.createElement('script');
-          fileref.setAttribute("type", "text/javascript");
-          fileref.setAttribute("src", window.documentRegisterElementScriptPath);
-          fileref.onload = function () {
-              loadWebComponent();
-          };
-          document.getElementsByTagName("head")[0].appendChild(fileref);
-      }
-      else {
-          throw new Error('customElements is not supported, please use the ' +
-              'document-register-element polyfill');
-      }
-  }
-  else {
-      loadWebComponent();
-  }
+  });
 
 })));

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/nathan-andosen/vue-ts-webcomponent#readme",
   "devDependencies": {
+    "@thenja/concat-scss": "1.0.0",
     "cssnano": "3.9.1",
     "fs-extra": "7.0.0",
     "grunt": "1.0.3",
